@@ -20,7 +20,7 @@
     "@types/node": "^12.12.6",
     "@types/react": "^16.7.17",
     "@types/react-dom": "^16.0.11",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "body-parser": "^1.18.2",
     "compression": "^1.7.4",
     "error-stack-parser": "^2.0.1",
