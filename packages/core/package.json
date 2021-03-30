@@ -27,7 +27,7 @@
     "levelup": "^4.4.0",
     "lodash.get": "^4.4.2",
     "lodash.sortby": "^4.7.0",
-    "object-path": "^0.11.4",
+    "object-path": "^0.11.5",
     "prettier": "^1.11.1",
     "ts-loader": "^4.1.0",
     "typescript": "^3.2.2",
