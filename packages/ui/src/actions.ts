@@ -9,7 +9,7 @@ export function traverse() {
     console.log("no inspection target!!");
   } else {
     console.time("Load Steps");
-    loadSteps(inspectionTarget).then((r) => {
+    loadSteps(inspectionTarget).then(r => {
       console.timeEnd("Load Steps");
       var steps = r.steps;
       console.log({ steps });
@@ -20,17 +20,17 @@ export function traverse() {
 }
 
 let isUndoing = false;
-let onSelectionChange = function () {
+let onSelectionChange = function() {
   if (isUndoing) {
     return;
   }
   const selectionInfo = {
     inspectionTarget: appState.get("inspectionTarget"),
-    domToInspect: appState.get("domToInspect"),
+    domToInspect: appState.get("domToInspect")
   };
   appState.set("selectionHistory", [
     ...appState.get("selectionHistory"),
-    selectionInfo,
+    selectionInfo
   ]);
 };
 // debounce to merge inspectiontarget and domtoinspect changes
@@ -68,11 +68,12 @@ window["selectAndTraverse"] = selectAndTraverse;
 export function selectInspectedDomCharIndex(charIndex) {
   appState.set(["domToInspect", "charIndex"], charIndex);
   inspectDomChar(charIndex).then(({ logId, charIndex }) => {
+    debugger;
     if (logId) {
       appState.set("inspectionTarget", { logId, charIndex });
       traverse();
     } else {
-      appState.set("inspectionTarget", null);
+      appState.set("inspectionTarget", { error: "No DOM tracking info" });
     }
   });
 }

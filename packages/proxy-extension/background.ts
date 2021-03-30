@@ -15,7 +15,7 @@ var Base64 = {
   _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
   // public method for encoding
-  encode: function (input) {
+  encode: function(input) {
     var output = "";
     var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
     var i = 0;
@@ -50,7 +50,7 @@ var Base64 = {
   }, // End Function encode
 
   // public method for decoding
-  decode: function (input) {
+  decode: function(input) {
     var output = "";
     var chr1, chr2, chr3;
     var enc1, enc2, enc3, enc4;
@@ -84,7 +84,7 @@ var Base64 = {
   }, // End Function decode
 
   // private method for UTF-8 encoding
-  _utf8_encode: function (string) {
+  _utf8_encode: function(string) {
     var utftext = "";
     string = string.replace(/\r\n/g, "\n");
 
@@ -107,7 +107,7 @@ var Base64 = {
   }, // End Function _utf8_encode
 
   // private method for UTF-8 decoding
-  _utf8_decode: function (utftext) {
+  _utf8_decode: function(utftext) {
     var string = "";
     var i = 0;
     var c, c1, c2, c3;
@@ -134,13 +134,13 @@ var Base64 = {
     } // Whend
 
     return string;
-  }, // End Function _utf8_decode
+  } // End Function _utf8_decode
 };
 
 async function getBackendPort() {
   function doGetBackendPort() {
-    return new Promise(async (resolve) => {
-      chrome.storage.sync.get(["backendPort"], function (result) {
+    return new Promise(async resolve => {
+      chrome.storage.sync.get(["backendPort"], function(result) {
         let bePort = result.backendPort;
         resolve(bePort);
       });
@@ -150,7 +150,7 @@ async function getBackendPort() {
   let bePort = await doGetBackendPort();
   if (!bePort) {
     console.log("BE port not set, will wait 2s and try again");
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 
   if (!bePort) {
@@ -161,9 +161,9 @@ async function getBackendPort() {
 }
 
 function setBackendPort(backendPort) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     console.log("setBackendPort", backendPort);
-    chrome.storage.sync.set({ backendPort }, function () {
+    chrome.storage.sync.set({ backendPort }, function() {
       resolve();
     });
   });
@@ -195,14 +195,14 @@ class TTab {
 
     // navigate away first because we can't enable debugger while on chrome url
     await thenChrome.tabs.update(tab.id, {
-      url: "http://localhost:" + backendPort + "/enableDebugger",
+      url: "http://localhost:" + backendPort + "/enableDebugger"
     });
 
     // wait for navigation away from chrome url
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    await new Promise(resolve => setTimeout(resolve, 250));
 
     const targets = await thenChrome.debugger.getTargets();
-    const target = targets.find((t) => t.type === "page" && t.tabId === tab.id);
+    const target = targets.find(t => t.type === "page" && t.tabId === tab.id);
     this.target = target;
 
     // const pageUrl =
@@ -229,7 +229,7 @@ class TTab {
   log(...args) {
     console.log.apply(console, [
       "[Tab: " + (this.tab && this.tab.id) + "]",
-      ...args,
+      ...args
     ]);
   }
 
@@ -264,13 +264,13 @@ class TTab {
 
       chrome.debugger.detach(this._getTargetArg());
       chrome.tabs.update(this.tab.id, {
-        url: "http://example.com/?interceptFailed",
+        url: "http://example.com/?interceptFailed"
       });
     }
   };
 
   async _setupDebugger() {
-    return new Promise(async (resolve) => {
+    return new Promise(async resolve => {
       const targetArg = this._getTargetArg();
 
       chrome.debugger.onDetach.addListener(this.onDetach);
@@ -304,6 +304,11 @@ class TTab {
 
     console.log(info.request.url, backendPort);
 
+    const fileExtension = info.request.url
+      .split("?")[0]
+      .split(".")
+      .slice(-1)[0];
+
     if (
       info.request.url === "about:blank" ||
       info.request.url.startsWith("chrome-extension://") ||
@@ -315,14 +320,15 @@ class TTab {
         !info.request.url.includes("/start") &&
         // I don't really get this, but there's an empty.js
         // file that needs to be loaded to do the html mapping in some cases
-        !info.request.url.includes("/fromJSInternal"))
+        !info.request.url.includes("/fromJSInternal")) ||
+      ["png", "jpg", "jpeg", "webp"].includes(fileExtension)
     ) {
       console.log("bypassing proxy", info.request.url);
       chrome.debugger.sendCommand(
         targetArg,
         "Network.continueInterceptedRequest",
         {
-          interceptionId,
+          interceptionId
         }
       );
       return;
@@ -333,43 +339,59 @@ class TTab {
       url: info.request.url,
       method: info.request.method,
       headers: info.request.headers,
-      postData: info.request.postData,
+      postData: info.request.postData
     };
     const res = await fetch(
       "http://localhost:" + (await getBackendPort()) + "/makeProxyRequest",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(reqInfo),
+        body: JSON.stringify(reqInfo)
       }
     )
-      .then((r) => {
+      .then(r => {
         rr = r;
-        return r.text();
+        return r.blob();
       })
-      .catch((err) => {
+      .catch(err => {
         console.log("Error making request", reqInfo);
         throw err;
       });
 
-    let responseText = `HTTP/1.1 ${rr.status}
+    let headerText = `HTTP/1.1 ${rr.status}
 ${Array.from(rr.headers)
-  .map(([headerKey, headerValue]) => {
-    return `${headerKey}: ${headerValue}`;
-  })
-  .join("\n")}
+      .map(([headerKey, headerValue]) => {
+        return `${headerKey}: ${headerValue}`;
+      })
+      .join("\n")}
 
-${res}`;
+`;
+    console.log(info.request.url, res);
+
+    let headersAndResponseBody = new Blob([headerText, res]);
+
+    var blobToBase64 = function(blob, callback) {
+      var reader = new FileReader();
+      reader.onload = function() {
+        var dataUrl = reader.result;
+        var base64 = dataUrl.split(",")[1];
+        callback(base64);
+      };
+      reader.readAsDataURL(blob);
+    };
+
+    let rawResponse = await new Promise(resolve => {
+      blobToBase64(headersAndResponseBody, resolve);
+    });
 
     chrome.debugger.sendCommand(
       targetArg,
       "Network.continueInterceptedRequest",
       {
         interceptionId,
-        // use this instead of btoa to avoid https://stackoverflow.com/questions/23223718/failed-to-execute-btoa-on-window-the-string-to-be-encoded-contains-characte
-        rawResponse: Base64.encode(responseText),
+        rawResponse
       }
     );
   }
@@ -384,7 +406,7 @@ ${res}`;
 
 let initInterval = setInterval(() => {
   console.log("checking for init page");
-  chrome.tabs.query({ title: "fromJSInitPage" }, async (tabs) => {
+  chrome.tabs.query({ title: "fromJSInitPage" }, async tabs => {
     if (tabs.length > 0) {
       console.log("found init page");
       clearInterval(initInterval);
@@ -403,7 +425,7 @@ let initInterval = setInterval(() => {
 //   tt.open(tab);
 // });
 
-chrome.tabs.onCreated.addListener((tab) => {
+chrome.tabs.onCreated.addListener(tab => {
   console.log("oncreated", tab);
   const tt = new TTab();
   tt.open(tab);

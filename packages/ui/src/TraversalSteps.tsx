@@ -19,12 +19,16 @@ let TraversalSteps = class TraversalSteps extends React.Component<
   {}
 > {
   render() {
-    if (!this.props.inspectionTarget || !this.props.inspectionTarget.logId) {
-      return (
-        <div>
-          No tracking data available (or it's just taking a long time to load)
-        </div>
-      );
+    if (!this.props.inspectionTarget) {
+      return <div>No tracking data available or still loading.</div>;
+    }
+
+    if (this.props.inspectionTarget.error) {
+      return <div>{this.props.inspectionTarget.error}</div>;
+    }
+
+    if (!this.props.inspectionTarget.logId) {
+      return <div>No tracking data available or still loading.</div>;
     }
 
     if (!this.props.inspectedString) {
@@ -76,7 +80,7 @@ let TraversalSteps = class TraversalSteps extends React.Component<
       }
       return {
         charsBefore: str.slice(charIndexTwoCharsBefore, step.charIndex),
-        charsAfter: str.slice(step.charIndex, charIndexTwoCharsAfter),
+        charsAfter: str.slice(step.charIndex, charIndexTwoCharsAfter)
       };
     }
 
@@ -106,7 +110,7 @@ let TraversalSteps = class TraversalSteps extends React.Component<
         charWillChange;
 
       if (isMainStep) {
-        if (!mainSteps.find((ms) => ms === s)) {
+        if (!mainSteps.find(ms => ms === s)) {
           mainSteps.push(s);
         }
       }
@@ -129,7 +133,7 @@ let TraversalSteps = class TraversalSteps extends React.Component<
         {mainSteps && (
           <div style={{ marginTop: 20 }}>
             {mainSteps
-              .map((step) => (
+              .map(step => (
                 <div style={{ marginBottom: 10 }}>
                   <ErrorBoundary>
                     <TraversalStep
@@ -221,7 +225,7 @@ let TraversalSteps = class TraversalSteps extends React.Component<
           <div
             className="title"
             style={{
-              cursor: "pointer",
+              cursor: "pointer"
             }}
           >
             Full data flow – the story of how the selected string was
@@ -231,7 +235,7 @@ let TraversalSteps = class TraversalSteps extends React.Component<
 
         {this.props.showFullDataFlow &&
           stepsToShow
-            .map((step) => (
+            .map(step => (
               <div style={{ marginBottom: 10 }}>
                 <ErrorBoundary>
                   <TraversalStep key={step.operationLog.index} step={step} />
@@ -252,7 +256,7 @@ TraversalSteps = branch(
     inspectedString: ["inspectedString"],
     showFullDataFlow: ["showFullDataFlow"],
     showDOMStep: ["showDOMStep"],
-    isTraversing: ["hasInProgressRequest", "traverse"],
+    isTraversing: ["hasInProgressRequest", "traverse"]
   },
   TraversalSteps
 );

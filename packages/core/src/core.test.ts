@@ -1620,6 +1620,24 @@ it("Doesn't break function argument array destructuring if some values aren't us
   expect(normal).toBe("b");
 });
 
+it("Doesn't break nested for of statements without a body", async () => {
+  const { normal, tracking, code } = await instrumentAndRun(
+    `
+    var i=["1"]
+    var chars=["a"]
+    let res = ""
+    for (var x of i)
+      for (var m of chars) 
+        res += x + m
+        
+    return res
+`,
+    {},
+    { logCode: false }
+  );
+  expect(normal).toBe("1a");
+});
+
 // it("Doesn't break if destructured variable is renamed", async () => {
 //   const { normal, tracking, code } = await instrumentAndRun(
 //     `

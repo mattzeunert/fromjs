@@ -174,7 +174,7 @@ function makePostToBE({ accessToken, fetch }) {
     if (!bodyIsString) {
       console.time("stringify");
       data.pageSessionId = global["fromJSPageSessionId"];
-      body = JSON.stringify(data);
+      body = safeJsonStringify(data);
       console.timeEnd("stringify");
     }
 
@@ -248,11 +248,11 @@ async function sendLogsToServer() {
 
   let data = "";
 
-  data += JSON.stringify(evalScriptQueue);
+  data += safeJsonStringify(evalScriptQueue);
   data += "\n";
-  data += JSON.stringify(eventQueue);
+  data += safeJsonStringify(eventQueue);
   data += "\n";
-  data += JSON.stringify(luckyMatchQueue);
+  data += safeJsonStringify(luckyMatchQueue);
   data += "\n";
   for (const item of logQueue) {
     data += item[0] + "\n" + item[1] + "\n";
@@ -291,6 +291,9 @@ function remotelyStoreLog(logIndex, logString) {
   logQueue.push([logIndex, logString]);
 }
 
+var safeJsonStringify = JSON.stringify.bind(JSON);
+var safeJsonParse = JSON.parse.bind(JSON);
+
 global["__fromJSWaitForSendLogsAndExitNodeProcess"] = async function() {
   console.log("__fromJSWaitForSendLogsAndExitNodeProcess");
   sendLogsToServer();
@@ -314,7 +317,7 @@ function createOperationLog(args: CreateOperationLogArgs, op, index) {
     return null;
   }
   var log = OperationLog.createAtRuntime(args, knownValues, op);
-  storeLog(index, JSON.stringify(log));
+  storeLog(index, safeJsonStringify(log));
 
   if (KEEP_LOGS_IN_MEMORY) {
     // Normally we just store the numbers, but it's useful for
@@ -345,7 +348,9 @@ global["__FromJSEnableCollectTrackingData"] = function(label) {
 if (KEEP_LOGS_IN_MEMORY) {
   global["__debugLookupLog"] = function(logId, currentDepth = 0) {
     try {
-      var log = JSON.parse(JSON.stringify(global["__debugAllLogs"][logId]));
+      var log = safeJsonParse(
+        safeJsonStringify(global["__debugAllLogs"][logId])
+      );
       if (currentDepth < 12) {
         const newArgs = {};
         Object.keys(log.args).forEach(key => {

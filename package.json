@@ -17,7 +17,7 @@
     "test": "jest",
     "test-watch": "jest --config=jest.config.dev.js --watch",
     "test-debug": "node --inspect=36654 ./node_modules/.bin/jest --config=jest.config.dev.js --runInBand",
-    "cli": "VERIFY=true nodemon --max_old_space_size=8000 --ignore packages/ui --ignore logs.json --ignore 'fromjs-session/*' --ignore 'node-test-compiled/*' packages/cli/dist/cli.js -- --openBrowser no",
+    "cli": "LOG_PERF=1 VERIFY=true nodemon --max_old_space_size=8000 --ignore packages/ui --ignore logs.json --ignore 'fromjs-session/*' --ignore 'node-test-compiled/*' packages/cli/dist/cli.js -- --openBrowser no",
     "cli-debug": "VERIFY=true nodemon --max_old_space_size=8000 --inspect=36655 --ignore logs.json --ignore fromjs-session packages/cli/dist/cli.js -- --openBrowser no",
     "cli-browser": "`node packages/cli/dist/cli.js --openBrowser only`",
     "cli-like-published": "node packages/cli/dist/cli.js",
@@ -33,6 +33,7 @@
     "node-fetch": "^2.6.0",
     "prettier": "^1.12.1",
     "pretty-bytes": "^5.3.0",
+    "puppeteer": "^5.2.1",
     "typescript": "^3.8.3"
   },
   "devDependencies": {

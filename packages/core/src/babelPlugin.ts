@@ -276,11 +276,12 @@ function plugin(babel) {
           varKind = "var";
         }
         if (variableDeclarator.id.type === "Identifier") {
-          if (!path.node.body.body) {
+          if (path.node.body.type !== "BlockStatement") {
             path.node.body = ignoreNode(
               babel.types.blockStatement([path.node.body])
             );
           }
+
           path.node.body.body.unshift(
             skipPath(
               t.variableDeclaration(varKind, [

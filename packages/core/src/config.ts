@@ -26,4 +26,4 @@ export const EXPLICIT_NAMES = !SHORT_NAMES;
 
 export const MINIMIZE_LOG_DATA_SIZE = true;
 
-export const LOG_PERF = true;
+export const LOG_PERF = process.env.LOG_PERF === "1";

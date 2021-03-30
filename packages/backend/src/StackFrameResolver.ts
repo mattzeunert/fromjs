@@ -38,11 +38,11 @@ function makeLine(fullLine, focusColumn) {
       length: fullLine.length,
       firstCharIndex,
       lastCharIndex,
-      text,
+      text
     };
   } catch (err) {
     return {
-      text: err.toString(),
+      text: err.toString()
     };
   }
 }
@@ -61,8 +61,7 @@ class StackFrameResolver {
   }
 
   getAjax(type: "proxy" | "normal") {
-    const ajax = (url) => {
-      console.log("get", { url });
+    const ajax = url => {
       // if (
       //   type === "normal" &&
       //   url.includes("http://fromjs-temporary-url.com:5555")
@@ -82,9 +81,9 @@ class StackFrameResolver {
               url,
               method: "GET",
               headers: {},
-              postData: null,
+              postData: null
             })
-            .then((r) => {
+            .then(r => {
               resolve(r.body);
             });
           return;
@@ -93,9 +92,9 @@ class StackFrameResolver {
         var r = request.defaults(options);
         r(
           {
-            url,
+            url
           },
-          function (err, res, body) {
+          function(err, res, body) {
             if (err) {
               console.error("request source maping error", err, url);
               reject(err);
@@ -112,11 +111,11 @@ class StackFrameResolver {
 
   resolveSourceCode(frameObject, options = { prettify: false }) {
     const { prettify } = options;
-    return this._fetchCode(frameObject).then(async (code) => {
+    return this._fetchCode(frameObject).then(async code => {
       if (prettify) {
         const {
           formatted,
-          mappedFrameObject,
+          mappedFrameObject
         } = await prettifyAndMapFrameObject(code, frameObject);
         frameObject = mappedFrameObject;
         code = formatted;
@@ -147,7 +146,7 @@ class StackFrameResolver {
           0
         ),
         nextLines: [],
-        previousLines: [],
+        previousLines: []
       };
     }
 
@@ -171,13 +170,13 @@ class StackFrameResolver {
           Math.max(frameObject.lineNumber - 1 - NUMBER_OF_LINES_TO_LOAD, 0),
           frameObject.lineNumber - 1
         )
-        .map((l) => makeLine(l, 0)),
+        .map(l => makeLine(l, 0)),
       nextLines: lines
         .slice(
           frameObject.lineNumber,
           frameObject.lineNumber + 1 + NUMBER_OF_LINES_TO_LOAD
         )
-        .map((l) => makeLine(l, 0)),
+        .map(l => makeLine(l, 0))
     };
   }
 
@@ -197,7 +196,7 @@ class StackFrameResolver {
       return Promise.resolve({
         line: makeLine("Loc has no start value " + JSON.stringify(loc), 0),
         nextLines: [],
-        previousLines: [],
+        previousLines: []
       });
     }
 
@@ -222,14 +221,14 @@ class StackFrameResolver {
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // Currently only supports the happy path, and assumes
       // sourcemap uses sourcescontent instead of URL refs
 
       const finishWithoutSourceMaps = () => {
         return this.resolveSourceCode(frameObject, {
-          prettify: prettifyIfNoSourceMap,
-        }).then((frameObjectWithSourceCode) => {
+          prettify: prettifyIfNoSourceMap
+        }).then(frameObjectWithSourceCode => {
           // frameObject.__debugOnly_FrameString = frameString;
           resolve(frameObjectWithSourceCode);
         });
@@ -240,10 +239,10 @@ class StackFrameResolver {
       ) {
         this._nonProxyGps
           .pinpoint(frameObject)
-          .then((pinpointedFrameObject) => {
+          .then(pinpointedFrameObject => {
             return this._nonProxyGps
               ._get(frameObject.fileName)
-              .then((unSourcemappedCode) => {
+              .then(unSourcemappedCode => {
                 let smUrl = _findSourceMappingURL(unSourcemappedCode);
                 if (!(smUrl.includes("http") || smUrl.includes("https"))) {
                   const basePath = frameObject.fileName
@@ -253,7 +252,7 @@ class StackFrameResolver {
                   smUrl = basePath + "/" + smUrl;
                 }
                 return this._nonProxyGps.sourceMapConsumerCache[smUrl].then(
-                  (smConsumer) => {
+                  smConsumer => {
                     const sourcesIndex = smConsumer.sources.indexOf(
                       pinpointedFrameObject.fileName
                     );
@@ -268,7 +267,7 @@ class StackFrameResolver {
                 );
               });
           })
-          .catch((err) => {
+          .catch(err => {
             finishWithoutSourceMaps();
           });
       } else {
@@ -294,9 +293,9 @@ class StackFrameResolver {
 
       var gps = this._gps;
       gps.pinpoint(frameObject).then(
-        (newFrame) => {
+        newFrame => {
           if (!prettify) {
-            this.resolveSourceCode(newFrame).then((newFrameWithSourceCode) => {
+            this.resolveSourceCode(newFrame).then(newFrameWithSourceCode => {
               finish(newFrameWithSourceCode);
             });
           } else {
@@ -313,7 +312,7 @@ class StackFrameResolver {
             // });
           }
         },
-        function () {
+        function() {
           console.log("Pinpoint failed!", arguments);
           reject("pinpoint failed");
         }
